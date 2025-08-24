@@ -1,12 +1,17 @@
 package org.example.model;
 
+import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class Student {
+    @SerializedName("student_name")
     private String fullName;
+    @SerializedName("university_id")
     private String universityId;
+    @SerializedName("course")
     private int currentCourseNumber;
+    @SerializedName("average_score")
     private float avgExamScore;
 
     public Student() {

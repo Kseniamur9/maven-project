@@ -8,12 +8,14 @@ import org.example.model.Student;
 import org.example.model.StudyProfile;
 import org.example.model.University;
 import org.example.util.ComparatorUtil;
+import org.example.util.JsonUtil;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        // Создание тестовых данных
         University university1 = new University.Builder()
                 .setId("UNIV001")
                 .setFullName("Московский государственный университет")
@@ -44,12 +46,56 @@ public class Main {
                 .setAvgExamScore(4.9f)
                 .build();
 
-        UniversityComparator universityComparator = ComparatorUtil.getUniversityComparator(UniversityComparatorType.FULL_NAME);
-        StudentComparator studentComparator = ComparatorUtil.getStudentComparator(StudentComparatorType.AVG_EXAM_SCORE);
-
         List<University> universities = Arrays.asList(university1, university2);
         List<Student> students = Arrays.asList(student1, student2);
 
+        // Сериализация коллекций
+        System.out.println("=== Сериализация коллекций ===");
+        String universitiesJson = JsonUtil.serializeUniversities(universities);
+        System.out.println("Universities JSON:\n" + universitiesJson);
+        String studentsJson = JsonUtil.serializeStudents(students);
+        System.out.println("Students JSON:\n" + studentsJson);
+
+        // Десериализация коллекций
+        System.out.println("\n=== Десериализация коллекций ===");
+        List<University> deserializedUniversities = JsonUtil.deserializeUniversities(universitiesJson);
+        List<Student> deserializedStudents = JsonUtil.deserializeStudents(studentsJson);
+
+        // Проверка количества элементов
+        System.out.println("Исходное количество университетов: " + universities.size());
+        System.out.println("Десериализованное количество университетов: " + deserializedUniversities.size());
+        System.out.println("Исходное количество студентов: " + students.size());
+        System.out.println("Десериализованное количество студентов: " + deserializedStudents.size());
+
+        // Сериализация и десериализация через Stream API
+        System.out.println("\n=== Stream API: Сериализация и десериализация отдельных объектов ===");
+        System.out.println("Университеты:");
+        universities.stream()
+                .map(university -> {
+                    String json = JsonUtil.serializeUniversity(university);
+                    System.out.println("Serialized University JSON:\n" + json);
+                    University deserialized = JsonUtil.deserializeUniversity(json);
+                    System.out.println("Deserialized University:\n" + deserialized);
+                    return deserialized;
+                })
+                .forEach(university -> {}); // Пустой forEach для завершения стрима
+
+        System.out.println("\nСтуденты:");
+        students.stream()
+                .map(student -> {
+                    String json = JsonUtil.serializeStudent(student);
+                    System.out.println("Serialized Student JSON:\n" + json);
+                    Student deserialized = JsonUtil.deserializeStudent(json);
+                    System.out.println("Deserialized Student:\n" + deserialized);
+                    return deserialized;
+                })
+                .forEach(student -> {}); // Пустой forEach для завершения стрима
+
+        // Существующий код сортировки
+        UniversityComparator universityComparator = ComparatorUtil.getUniversityComparator(UniversityComparatorType.FULL_NAME);
+        StudentComparator studentComparator = ComparatorUtil.getStudentComparator(StudentComparatorType.AVG_EXAM_SCORE);
+
+        System.out.println("\n=== Сортировка ===");
         System.out.println("Universities sorted by full name:");
         universities.stream()
                 .sorted(universityComparator)

@@ -1,13 +1,19 @@
 package org.example.model;
 
+import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class University {
+    @SerializedName("university_id")
     private String id;
+    @SerializedName("full_name")
     private String fullName;
+    @SerializedName("short_name")
     private String shortName;
+    @SerializedName("year_founded")
     private int yearOfFoundation;
+    @SerializedName("main_profile")
     private StudyProfile mainProfile;
 
     public University() {
