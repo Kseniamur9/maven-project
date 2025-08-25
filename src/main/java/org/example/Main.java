@@ -7,8 +7,11 @@ import org.example.comparator.UniversityComparatorType;
 import org.example.model.Student;
 import org.example.model.StudyProfile;
 import org.example.model.University;
+import org.example.model.Statistics;
 import org.example.util.ComparatorUtil;
 import org.example.util.JsonUtil;
+import org.example.util.StatisticsUtil;
+import org.example.util.XlsWriter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +35,14 @@ public class Main {
                 .setMainProfile(StudyProfile.MEDICINE)
                 .build();
 
+        University university3 = new University.Builder()
+                .setId("UNIV003")
+                .setFullName("Новосибирский государственный университет")
+                .setShortName("НГУ")
+                .setYearOfFoundation(1959)
+                .setMainProfile(StudyProfile.ENGINEERING)
+                .build();
+
         Student student1 = new Student.Builder()
                 .setFullName("Иван Иванов")
                 .setUniversityId("UNIV001")
@@ -46,7 +57,7 @@ public class Main {
                 .setAvgExamScore(4.9f)
                 .build();
 
-        List<University> universities = Arrays.asList(university1, university2);
+        List<University> universities = Arrays.asList(university1, university2, university3);
         List<Student> students = Arrays.asList(student1, student2);
 
         // Сериализация коллекций
@@ -78,7 +89,7 @@ public class Main {
                     System.out.println("Deserialized University:\n" + deserialized);
                     return deserialized;
                 })
-                .forEach(university -> {}); // Пустой forEach для завершения стрима
+                .forEach(university -> {});
 
         System.out.println("\nСтуденты:");
         students.stream()
@@ -89,9 +100,9 @@ public class Main {
                     System.out.println("Deserialized Student:\n" + deserialized);
                     return deserialized;
                 })
-                .forEach(student -> {}); // Пустой forEach для завершения стрима
+                .forEach(student -> {});
 
-        // Существующий код сортировки
+        // Сортировка
         UniversityComparator universityComparator = ComparatorUtil.getUniversityComparator(UniversityComparatorType.FULL_NAME);
         StudentComparator studentComparator = ComparatorUtil.getStudentComparator(StudentComparatorType.AVG_EXAM_SCORE);
 
@@ -105,5 +116,15 @@ public class Main {
         students.stream()
                 .sorted(studentComparator)
                 .forEach(System.out::println);
+
+        // Сбор и вывод статистики
+        System.out.println("\n=== Статистика ===");
+        List<Statistics> statistics = StatisticsUtil.calculateStatistics(students, universities);
+        statistics.forEach(System.out::println);
+
+        // Запись статистики в Excel
+        System.out.println("\n=== Запись статистики в Excel ===");
+        XlsWriter.writeStatisticsToExcel(statistics, "statistics.xlsx");
+        System.out.println("Excel file generated: statistics.xlsx");
     }
 }
