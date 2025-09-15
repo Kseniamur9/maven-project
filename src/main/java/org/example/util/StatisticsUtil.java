@@ -1,5 +1,7 @@
 package org.example.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.example.model.Statistics;
 import org.example.model.Student;
 import org.example.model.StudyProfile;
@@ -11,30 +13,30 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class StatisticsUtil {
+    private static final Logger logger = LogManager.getLogger(StatisticsUtil.class.getName());
+
     private StatisticsUtil() {
-        throw new UnsupportedOperationException("Utility class, cannot be instantiated");
+        throw new UnsupportedOperationException("Класс-утилита, не может быть создан");
     }
 
     public static List<Statistics> calculateStatistics(List<Student> students, List<University> universities) {
-        return universities.stream()
+        logger.info("Начало вычисления статистики для {} университетов и {} студентов", universities.size(), students.size());
+        List<Statistics> statistics = universities.stream()
                 .map(University::getMainProfile)
                 .distinct()
                 .map(profile -> {
-                    // Собираем университеты по профилю
                     Set<String> universityNames = universities.stream()
                             .filter(u -> u.getMainProfile() == profile)
                             .map(University::getFullName)
                             .collect(Collectors.toSet());
                     int universityCount = universityNames.size();
 
-                    // Собираем студентов по профилю (через universityId)
                     List<Student> studentsByProfile = students.stream()
                             .filter(s -> universities.stream()
                                     .anyMatch(u -> u.getId().equals(s.getUniversityId()) && u.getMainProfile() == profile))
                             .collect(Collectors.toList());
                     int studentCount = studentsByProfile.size();
 
-                    // Вычисляем средний балл
                     OptionalDouble avgExamScore = studentCount > 0
                             ? studentsByProfile.stream()
                             .mapToDouble(Student::getAvgExamScore)
@@ -44,6 +46,7 @@ public class StatisticsUtil {
                     return new Statistics(profile, avgExamScore, studentCount, universityCount, universityNames);
                 })
                 .collect(Collectors.toList());
+        logger.info("Статистика вычислена для {} профилей", statistics.size());
+        return statistics;
     }
 }
-

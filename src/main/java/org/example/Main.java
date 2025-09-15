@@ -1,5 +1,7 @@
 package org.example;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.example.comparator.StudentComparator;
 import org.example.comparator.StudentComparatorType;
 import org.example.comparator.UniversityComparator;
@@ -9,122 +11,86 @@ import org.example.model.StudyProfile;
 import org.example.model.University;
 import org.example.model.Statistics;
 import org.example.util.ComparatorUtil;
-import org.example.util.JsonUtil;
 import org.example.util.StatisticsUtil;
 import org.example.util.XlsWriter;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 public class Main {
+    private static final Logger logger = LogManager.getLogger(Main.class.getName());
+
     public static void main(String[] args) {
-        // Создание тестовых данных
-        University university1 = new University.Builder()
-                .setId("UNIV001")
-                .setFullName("Московский государственный университет")
-                .setShortName("МГУ")
-                .setYearOfFoundation(1755)
-                .setMainProfile(StudyProfile.COMPUTER_SCIENCE)
-                .build();
+        try {
+            // Инициализация логгера из log4j2.xml
+            System.setProperty("log4j2.configurationFile", "classpath:log4j2.xml");
+            logger.info("Запуск приложения");
 
-        University university2 = new University.Builder()
-                .setId("UNIV002")
-                .setFullName("Санкт-Петербургский государственный университет")
-                .setShortName("СПбГУ")
-                .setYearOfFoundation(1724)
-                .setMainProfile(StudyProfile.MEDICINE)
-                .build();
+            // Создание тестовых данных
+            University university1 = new University.Builder()
+                    .setId("UNIV001")
+                    .setFullName("Московский государственный университет")
+                    .setShortName("МГУ")
+                    .setYearOfFoundation(1755)
+                    .setMainProfile(StudyProfile.COMPUTER_SCIENCE)
+                    .build();
 
-        University university3 = new University.Builder()
-                .setId("UNIV003")
-                .setFullName("Новосибирский государственный университет")
-                .setShortName("НГУ")
-                .setYearOfFoundation(1959)
-                .setMainProfile(StudyProfile.ENGINEERING)
-                .build();
+            University university2 = new University.Builder()
+                    .setId("UNIV002")
+                    .setFullName("Санкт-Петербургский государственный университет")
+                    .setShortName("СПбГУ")
+                    .setYearOfFoundation(1724)
+                    .setMainProfile(StudyProfile.MEDICINE)
+                    .build();
 
-        Student student1 = new Student.Builder()
-                .setFullName("Иван Иванов")
-                .setUniversityId("UNIV001")
-                .setCurrentCourseNumber(2)
-                .setAvgExamScore(4.8f)
-                .build();
+            University university3 = new University.Builder()
+                    .setId("UNIV003")
+                    .setFullName("Новосибирский государственный университет")
+                    .setShortName("НГУ")
+                    .setYearOfFoundation(1959)
+                    .setMainProfile(StudyProfile.ENGINEERING)
+                    .build();
 
-        Student student2 = new Student.Builder()
-                .setFullName("Анна Петрова")
-                .setUniversityId("UNIV001")
-                .setCurrentCourseNumber(1)
-                .setAvgExamScore(4.9f)
-                .build();
+            Student student1 = new Student.Builder()
+                    .setFullName("Иван Иванов")
+                    .setUniversityId("UNIV001")
+                    .setCurrentCourseNumber(2)
+                    .setAvgExamScore(4.8f)
+                    .build();
 
-        List<University> universities = Arrays.asList(university1, university2, university3);
-        List<Student> students = Arrays.asList(student1, student2);
+            Student student2 = new Student.Builder()
+                    .setFullName("Анна Петрова")
+                    .setUniversityId("UNIV001")
+                    .setCurrentCourseNumber(1)
+                    .setAvgExamScore(4.9f)
+                    .build();
 
-        // Сериализация коллекций
-        System.out.println("=== Сериализация коллекций ===");
-        String universitiesJson = JsonUtil.serializeUniversities(universities);
-        System.out.println("Universities JSON:\n" + universitiesJson);
-        String studentsJson = JsonUtil.serializeStudents(students);
-        System.out.println("Students JSON:\n" + studentsJson);
+            List<University> universities = Arrays.asList(university1, university2, university3);
+            List<Student> students = Arrays.asList(student1, student2);
 
-        // Десериализация коллекций
-        System.out.println("\n=== Десериализация коллекций ===");
-        List<University> deserializedUniversities = JsonUtil.deserializeUniversities(universitiesJson);
-        List<Student> deserializedStudents = JsonUtil.deserializeStudents(studentsJson);
+            // Сортировка
+            logger.info("Сортировка университетов по полному названию");
+            UniversityComparator universityComparator = ComparatorUtil.getUniversityComparator(UniversityComparatorType.FULL_NAME);
+            universities.sort(universityComparator);
 
-        // Проверка количества элементов
-        System.out.println("Исходное количество университетов: " + universities.size());
-        System.out.println("Десериализованное количество университетов: " + deserializedUniversities.size());
-        System.out.println("Исходное количество студентов: " + students.size());
-        System.out.println("Десериализованное количество студентов: " + deserializedStudents.size());
+            logger.info("Сортировка студентов по средней оценке за экзамены (по убыванию)");
+            StudentComparator studentComparator = ComparatorUtil.getStudentComparator(StudentComparatorType.AVG_EXAM_SCORE);
+            students.sort(studentComparator);
 
-        // Сериализация и десериализация через Stream API
-        System.out.println("\n=== Stream API: Сериализация и десериализация отдельных объектов ===");
-        System.out.println("Университеты:");
-        universities.stream()
-                .map(university -> {
-                    String json = JsonUtil.serializeUniversity(university);
-                    System.out.println("Serialized University JSON:\n" + json);
-                    University deserialized = JsonUtil.deserializeUniversity(json);
-                    System.out.println("Deserialized University:\n" + deserialized);
-                    return deserialized;
-                })
-                .forEach(university -> {});
+            // Сбор статистики
+            logger.info("Вычисление статистики");
+            List<Statistics> statistics = StatisticsUtil.calculateStatistics(students, universities);
 
-        System.out.println("\nСтуденты:");
-        students.stream()
-                .map(student -> {
-                    String json = JsonUtil.serializeStudent(student);
-                    System.out.println("Serialized Student JSON:\n" + json);
-                    Student deserialized = JsonUtil.deserializeStudent(json);
-                    System.out.println("Deserialized Student:\n" + deserialized);
-                    return deserialized;
-                })
-                .forEach(student -> {});
+            // Запись статистики в Excel
+            logger.info("Запись статистики в Excel-файл: statistics.xlsx");
+            XlsWriter.writeStatisticsToExcel(statistics, "statistics.xlsx");
+            logger.info("Excel-файл успешно создан");
 
-        // Сортировка
-        UniversityComparator universityComparator = ComparatorUtil.getUniversityComparator(UniversityComparatorType.FULL_NAME);
-        StudentComparator studentComparator = ComparatorUtil.getStudentComparator(StudentComparatorType.AVG_EXAM_SCORE);
-
-        System.out.println("\n=== Сортировка ===");
-        System.out.println("Universities sorted by full name:");
-        universities.stream()
-                .sorted(universityComparator)
-                .forEach(System.out::println);
-
-        System.out.println("\nStudents sorted by average exam score (descending):");
-        students.stream()
-                .sorted(studentComparator)
-                .forEach(System.out::println);
-
-        // Сбор и вывод статистики
-        System.out.println("\n=== Статистика ===");
-        List<Statistics> statistics = StatisticsUtil.calculateStatistics(students, universities);
-        statistics.forEach(System.out::println);
-
-        // Запись статистики в Excel
-        System.out.println("\n=== Запись статистики в Excel ===");
-        XlsWriter.writeStatisticsToExcel(statistics, "statistics.xlsx");
-        System.out.println("Excel file generated: statistics.xlsx");
+        } catch (IOException e) {
+            logger.error("Ошибка при инициализации конфигурации логирования или записи в Excel", e);
+        } catch (Exception e) {
+            logger.error("Непредвиденная ошибка в приложении", e);
+        }
     }
 }

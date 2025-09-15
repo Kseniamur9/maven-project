@@ -1,6 +1,9 @@
 package org.example.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.model.Statistics;
 
@@ -9,20 +12,26 @@ import java.io.IOException;
 import java.util.List;
 
 public class XlsWriter {
-    public static void writeStatisticsToExcel(List<Statistics> statisticsList, String filePath) {
-        // Создаём новую книгу Excel
+    private static final Logger logger = LogManager.getLogger(XlsWriter.class.getName());
+
+    private XlsWriter() {
+        throw new UnsupportedOperationException("Utility class, cannot be instantiated");
+    }
+
+    public static void writeStatisticsToExcel(List<Statistics> statistics, String filePath) throws IOException {
+        logger.info("Starting to write statistics to Excel file: {}", filePath);
         try (Workbook workbook = new XSSFWorkbook()) {
-            // Создаём лист
             Sheet sheet = workbook.createSheet("Statistics");
 
-            // Создаём стиль для заголовков
-            Font headerFont = workbook.createFont();
-            headerFont.setBold(true);
-            headerFont.setFontHeightInPoints((short) 12);
+            // Создание стиля для заголовков
             CellStyle headerStyle = workbook.createCellStyle();
-            headerStyle.setFont(headerFont);
+            XSSFFont font = ((XSSFWorkbook) workbook).createFont();
+            font.setFontName("Calibri");
+            font.setFontHeightInPoints((short) 12);
+            font.setBold(true);
+            headerStyle.setFont(font);
 
-            // Создаём заголовок
+            // Создание заголовков
             Row headerRow = sheet.createRow(0);
             String[] headers = {"Profile", "Average Exam Score", "Student Count", "University Count", "University Names"};
             for (int i = 0; i < headers.length; i++) {
@@ -31,28 +40,30 @@ public class XlsWriter {
                 cell.setCellStyle(headerStyle);
             }
 
-            // Заполняем данными
+            // Заполнение данных
             int rowNum = 1;
-            for (Statistics stats : statisticsList) {
+            for (Statistics stat : statistics) {
                 Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(stats.getStudyProfile().getProfileName());
-                row.createCell(1).setCellValue(stats.getAvgExamScoreAsString());
-                row.createCell(2).setCellValue(stats.getStudentCount());
-                row.createCell(3).setCellValue(stats.getUniversityCount());
-                row.createCell(4).setCellValue(String.join(", ", stats.getUniversityNames()));
+                row.createCell(0).setCellValue(stat.getStudyProfile().getProfileName());
+                row.createCell(1).setCellValue(stat.getAvgExamScoreAsString());
+                row.createCell(2).setCellValue(stat.getStudentCount());
+                row.createCell(3).setCellValue(stat.getUniversityCount());
+                row.createCell(4).setCellValue(stat.getUniversityNames().toString());
             }
 
-            // Автоматическая настройка ширины столбцов
+            // Авторазмер столбцов
             for (int i = 0; i < headers.length; i++) {
                 sheet.autoSizeColumn(i);
             }
 
-            // Записываем файл
+            // Запись в файл
             try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
                 workbook.write(fileOut);
+                logger.info("Successfully wrote statistics to Excel file: {}", filePath);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write Excel file: " + filePath, e);
+            logger.error("Failed to write statistics to Excel file: {}", filePath, e);
+            throw e;
         }
     }
 }
