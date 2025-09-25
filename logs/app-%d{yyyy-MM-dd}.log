@@ -1,0 +1,13 @@
+2025-09-25 23:51:30 INFO  Main:23 - Запуск приложения
+2025-09-25 23:51:30 INFO  Main:68 - Сортировка университетов по полному названию
+2025-09-25 23:51:30 INFO  Main:72 - Сортировка студентов по средней оценке за экзамены (по убыванию)
+2025-09-25 23:51:30 INFO  Main:77 - Вычисление статистики
+2025-09-25 23:51:30 INFO  StatisticsUtil:23 - Начало вычисления статистики для 3 университетов и 2 студентов
+2025-09-25 23:51:30 INFO  StatisticsUtil:49 - Статистика вычислена для 3 профилей
+2025-09-25 23:51:30 INFO  Main:81 - Запись статистики в Excel-файл: statistics.xlsx
+2025-09-25 23:51:30 INFO  XlsWriter:22 - Starting to write statistics to Excel file: statistics.xlsx
+2025-09-25 23:51:30 INFO  XlsWriter:62 - Successfully wrote statistics to Excel file: statistics.xlsx
+2025-09-25 23:51:30 INFO  Main:83 - Excel-файл успешно создан
+2025-09-25 23:51:30 INFO  Main:99 - Создан объект Root для XML и JSON
+2025-09-25 23:51:30 INFO  XmlWriter:38 - XML-файл успешно создан: xmlReqs/req-1758811890846.xml
+2025-09-25 23:51:30 INFO  JsonWriter:33 - JSON-файл успешно создан: jsonReqs/req-1758811890972.json

@@ -1,0 +1,46 @@
+{
+  "studentsInfo": [
+    {
+      "studentName": "Анна Петрова",
+      "universityId": "UNIV001",
+      "avgScore": 4.9
+    },
+    {
+      "studentName": "Иван Иванов",
+      "universityId": "UNIV001",
+      "avgScore": 4.8
+    }
+  ],
+  "universitiesInfo": [
+    {
+      "universityId": "UNIV001",
+      "universityName": "Московский государственный университет",
+      "universityProfile": "COMPUTER_SCIENCE"
+    },
+    {
+      "universityId": "UNIV003",
+      "universityName": "Новосибирский государственный университет",
+      "universityProfile": "ENGINEERING"
+    },
+    {
+      "universityId": "UNIV002",
+      "universityName": "Санкт-Петербургский государственный университет",
+      "universityProfile": "MEDICINE"
+    }
+  ],
+  "statisticalInfo": [
+    {
+      "universityProfile": "COMPUTER_SCIENCE",
+      "avgScore": 4.85
+    },
+    {
+      "universityProfile": "ENGINEERING",
+      "avgScore": 0.0
+    },
+    {
+      "universityProfile": "MEDICINE",
+      "avgScore": 0.0
+    }
+  ],
+  "processedAt": "2025-09-25T23:51:30.8437447+09:00[Asia/Yakutsk]"
+}

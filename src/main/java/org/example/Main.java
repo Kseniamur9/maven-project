@@ -6,28 +6,23 @@ import org.example.comparator.StudentComparator;
 import org.example.comparator.StudentComparatorType;
 import org.example.comparator.UniversityComparator;
 import org.example.comparator.UniversityComparatorType;
-import org.example.model.Student;
-import org.example.model.StudyProfile;
-import org.example.model.University;
-import org.example.model.Statistics;
-import org.example.util.ComparatorUtil;
-import org.example.util.StatisticsUtil;
-import org.example.util.XlsWriter;
+import org.example.model.*;
+import org.example.util.*;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class.getName());
 
     public static void main(String[] args) {
         try {
-            // Инициализация логгера из log4j2.xml
             System.setProperty("log4j2.configurationFile", "classpath:log4j2.xml");
             logger.info("Запуск приложения");
 
-            // Создание тестовых данных
+            // Тестовые данные
             University university1 = new University.Builder()
                     .setId("UNIV001")
                     .setFullName("Московский государственный университет")
@@ -86,6 +81,28 @@ public class Main {
             logger.info("Запись статистики в Excel-файл: statistics.xlsx");
             XlsWriter.writeStatisticsToExcel(statistics, "statistics.xlsx");
             logger.info("Excel-файл успешно создан");
+
+            // Создание объекта Root для XML и JSON
+            List<StudentEntry> studentEntries = students.stream()
+                    .map(s -> new StudentEntry(s.getFullName(), s.getUniversityId(), s.getAvgExamScore()))
+                    .collect(Collectors.toList());
+
+            List<UniversityEntry> universityEntries = universities.stream()
+                    .map(u -> new UniversityEntry(u.getId(), u.getFullName(), u.getMainProfile().name()))
+                    .collect(Collectors.toList());
+
+            List<StatisticsEntry> statisticsEntries = statistics.stream()
+                    .map(s -> new StatisticsEntry(s.getStudyProfile().name(), s.getAvgExamScoreAsString().equals("N/A") ? 0.0f : Float.parseFloat(s.getAvgExamScoreAsString())))
+                    .collect(Collectors.toList());
+
+            Root root = new Root(studentEntries, universityEntries, statisticsEntries);
+            logger.info("Создан объект Root для XML и JSON");
+
+            // Генерация XML
+            XmlWriter.writeToXml(root);
+
+            // Генерация JSON
+            JsonWriter.writeToJson(root);
 
         } catch (IOException e) {
             logger.error("Ошибка при инициализации конфигурации логирования или записи в Excel", e);
